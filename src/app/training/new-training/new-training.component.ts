@@ -2,8 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ExerciseModel} from '../exercise.model';
 import {TrainingService} from '../training.service';
 import {NgForm} from '@angular/forms';
-import {Subscription} from 'rxjs';
 import {UiService} from "../../shared/ui.service";
+import {takeWhile} from "rxjs/operators";
 
 @Component({
   selector: 'app-new-training',
@@ -12,8 +12,7 @@ import {UiService} from "../../shared/ui.service";
 })
 export class NewTrainingComponent implements OnInit, OnDestroy {
   exercises: ExerciseModel[];
-  private exerciseSubscription: Subscription;
-  private loadingSubscription: Subscription;
+  private alive = true;
 
   constructor(private trainingService: TrainingService, private uiService: UiService) {
   }
@@ -21,12 +20,18 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   ngOnInit(): void {
-    this.loadingSubscription = this.uiService.loadingStateChanged.subscribe(
+    this.uiService.loadingStateChanged
+      .pipe(
+        takeWhile(() => this.alive)
+      ).subscribe(
       isLoading => {
         this.isLoading = isLoading;
       }
     );
-    this.exerciseSubscription = this.trainingService.exercisesChanged.subscribe(
+    this.trainingService.exercisesChanged
+      .pipe(
+        takeWhile(() => this.alive)
+      ).subscribe(
       exercises => {
         this.exercises = exercises;
       }
@@ -43,8 +48,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.exerciseSubscription.unsubscribe();
-    this.loadingSubscription.unsubscribe();
+    this.alive = false;
   }
 
 }

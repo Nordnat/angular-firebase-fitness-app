@@ -4,7 +4,7 @@ import {ExerciseModel} from '../exercise.model';
 import {TrainingService} from '../training.service';
 import {MatSort} from '@angular/material/sort';
 import {MatPaginator} from '@angular/material/paginator';
-import {Subscription} from 'rxjs';
+import {takeWhile} from "rxjs/operators";
 
 @Component({
   selector: 'app-past-trainings',
@@ -15,14 +15,17 @@ export class PastTrainingsComponent implements OnInit, AfterViewInit, OnDestroy 
 
   displayedColumns = ['date', 'name', 'duration', 'calories', 'state'];
   dataSource = new MatTableDataSource<ExerciseModel>();
-  private exChangeSubscription: Subscription;
+  private alive = true;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(private trainingService: TrainingService) { }
 
   ngOnInit(): void {
-    this.exChangeSubscription = this.trainingService.finishedExercisesChanged.subscribe((exercises: ExerciseModel[]) => {
+    this.trainingService.finishedExercisesChanged
+      .pipe(
+        takeWhile(() => this.alive)
+      ).subscribe((exercises: ExerciseModel[]) => {
       this.dataSource.data = exercises;
     });
     this.trainingService.fetchCompletedOrCancelledExercises();
@@ -38,7 +41,7 @@ export class PastTrainingsComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    this.exChangeSubscription.unsubscribe();
+    this.alive = false;
   }
 
 }

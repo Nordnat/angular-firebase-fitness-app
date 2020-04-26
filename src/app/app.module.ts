@@ -16,7 +16,7 @@ import {AuthModule} from "./auth/auth.module";
 import {MaterialModule} from "./material.module";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {TrainingModule} from "./training/training.module";
+import {AngularFirestoreModule} from "angularfire2/firestore";
 
 @NgModule({
   declarations: [
@@ -35,7 +35,7 @@ import {TrainingModule} from "./training/training.module";
     AuthModule,
     FormsModule,
     ReactiveFormsModule,
-    TrainingModule
+    AngularFirestoreModule,
   ],
   providers: [AuthService, TrainingService, UiService],
   bootstrap: [AppComponent],

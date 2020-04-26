@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../auth.service';
 import {UiService} from '../../shared/ui.service';
-import {Subscription} from 'rxjs';
+import {takeWhile} from "rxjs/operators";
 
 @Component({
   selector: 'app-login',
@@ -12,7 +12,7 @@ import {Subscription} from 'rxjs';
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   isLoading = false;
-  private loadingSub: Subscription;
+  private alive = true;
 
   constructor(private authService: AuthService, private  uiService: UiService) { }
 
@@ -22,7 +22,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: new FormControl('', {validators: [Validators.required]})
     });
 
-    this.loadingSub = this.uiService.loadingStateChanged.subscribe(state => this.isLoading = state);
+    this.uiService.loadingStateChanged.
+    pipe(
+      takeWhile(() => this.alive)
+    ).subscribe(state => this.isLoading = state);
   }
 
   onSubmit() {
@@ -33,7 +36,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.loadingSub.unsubscribe();
+    this.alive = false;
   }
 
 }

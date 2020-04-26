@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {AuthService} from '../auth.service';
 import {UiService} from "../../shared/ui.service";
-import {Subscription} from "rxjs";
+import {takeWhile} from "rxjs/operators";
 
 @Component({
   selector: 'app-signup',
@@ -13,12 +13,15 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   maxDate;
   isLoading = false;
-  private loadingSub: Subscription;
+  private alive = true;
 
   constructor(private authService: AuthService, private uiService: UiService) { }
 
   ngOnInit(): void {
-    this.loadingSub = this.uiService.loadingStateChanged.subscribe(state => {
+    this.uiService.loadingStateChanged
+      .pipe(
+        takeWhile(() => this.alive)
+      ).subscribe(state => {
       this.isLoading = state;
     })
     this.maxDate = new Date();
@@ -33,6 +36,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.loadingSub.unsubscribe();
+    this.alive = false;
   }
 }
