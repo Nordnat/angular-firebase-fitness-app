@@ -17,6 +17,8 @@ import {MaterialModule} from "./material.module";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AngularFirestoreModule} from "angularfire2/firestore";
+import {StoreModule} from "@ngrx/store";
+import {reducers} from "./app.reducer";
 
 @NgModule({
   declarations: [
@@ -36,6 +38,7 @@ import {AngularFirestoreModule} from "angularfire2/firestore";
     FormsModule,
     ReactiveFormsModule,
     AngularFirestoreModule,
+    StoreModule.forRoot(reducers)
   ],
   providers: [AuthService, TrainingService, UiService],
   bootstrap: [AppComponent],
